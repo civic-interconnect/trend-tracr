@@ -1,0 +1,95 @@
+# ============================================================
+# pyproject.toml (ALL-PY-SRC-REPOS)
+# ============================================================
+# Updated: 2026-09-03
+# REQ: Python src/ projects MUST include pyproject.toml as the single source of truth.
+# WHY: Centralizes project configuration.
+# CUSTOM: If you change the repository name, update the project identity and build tool src folders accordingly.
+# CUSTOM: This project keeps dependencies current; in production, package versions are pinned explicitly.
+
+# ============================================================
+# SECTION 1: PROJECT IDENTITY (name, version, CUSTOM dependencies)
+# ============================================================
+
+[project]
+description = "Interactive explorer for trends in NIST TraCR community-resilience data, built with marimo."
+name = "trend-tracr"
+requires-python = ">=3.14"
+version = "0.1.0"
+
+dependencies = [
+    "altair>=5.4",
+    "marimo>=0.24.0",
+    "matplotlib>=3.8",
+    "plotly>=5.20",
+    "polars>=1.0",
+    "pyarrow>=20",
+]
+
+[dependency-groups]
+dev = ["pre-commit", "pytest", "pytest-cov", "ruff", "ty"]
+
+[project.urls]
+App = "https://civic-interconnect.github.io/trend-tracr/"
+Homepage = "https://github.com/civic-interconnect/trend-tracr"
+Repository = "https://github.com/civic-interconnect/trend-tracr"
+Issues = "https://github.com/civic-interconnect/trend-tracr/issues"
+
+# ============================================================
+# SECTION 2: TOOL CONFIGURATION (Professional basics)
+# ============================================================
+
+# === MARIMO REACTIVE NOTEBOOKS ===
+
+[tool.marimo.save]
+autosave = "after_delay"
+autosave_delay = 1000
+format_on_save = true
+
+[tool.marimo.package_management]
+manager = "uv"
+
+# === PYTEST (VERIFY LOGIC) ===
+
+[tool.pytest.ini_options]
+pythonpath = ["src"] # add for marimo apps
+addopts = "--cov=src --cov-fail-under=20 --cov-report=term-missing"
+filterwarnings = [
+    "ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning",
+]
+minversion = "9.0"
+testpaths = ["tests"]
+
+# === RUFF (PYTHON FORMATTING AND LINTING) ===
+
+[tool.ruff]
+extend-exclude = [".venv", "tools/pdrdownload.py"]
+
+[tool.ruff.lint]
+extend-select = ["D"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+
+[tool.ruff.lint.per-file-ignores]
+"src/**/*.py" = ["B018", "D", "F401", "PLR1711", "RUF059"]
+"src/**/*.mo.py" = ["N999"]
+"src/**/__init__.py" = ["F401"]
+"src/**/_version.py" = ["ALL"]
+"tests/**/*.py" = ["D", "B018"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# === TY (STATIC TYPE CHECKING) ===
+
+[tool.ty.environment]
+root = ["./src"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+# === UV (PYTHON ENVIRONMENT AND DEPENDENCY MANAGEMENT) ===
+
+[tool.uv]
+default-groups = "all"

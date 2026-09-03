@@ -1,0 +1,71 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.24.0",
+    "script_metadata_hash": null
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "e3a0b918bbf9f9885aa830a380f3b0db",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "02354144602abbfbae281acdb8c24bd9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"nist-tracr-community-trends\">NIST TraCR Community Trends</h1>\n<span class=\"paragraph\">Pick a county and an indicator, and watch how the indicator has\nchanged over time.</span>\n<span class=\"paragraph\">Choose one <strong>renderer</strong>, or switch to <strong>Compare all</strong> to see the same\nview rendered differently.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "bac3fb43a032d0aec20496704e263de8",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "47b905ef2308c5203bc3cae8fefd1f93",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "0f41b99cbfc031eebc6827613e7e540f",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "a9c4ac6fd796b7b3b63ca773db2de57a",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "c9d4faf662f41ee23def942b2a6da57d",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "f5574f4d017b4914a06ca03b6feb9775",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"suggestions\">Suggestions</h2>\n<ul>\n<li><strong>Improve <code>s01</code>.</strong> Processing is deliberately minimal.\n  Add handling for suppressed values, revised indicators, or missing years.\n  Document decisions.</li>\n<li><strong>Add an analytic.</strong> Percent change, slope, or a ranking can be new\n  functions in <code>s02</code> returning their own small result types.</li>\n</ul>\n<span class=\"paragraph\"><a href=\"https://github.com/civic-interconnect/trend-tracr\" rel=\"noopener noreferrer\" target=\"_blank\">Source</a></span></span>"
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

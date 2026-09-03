@@ -1,0 +1,40 @@
+cff-version: "1.2.0"
+message: "If using this work, please cite it as described in this file."
+type: software
+
+title: "trend-tracr"
+version: "0.1.0"
+date-released: "2026-09-02"
+
+authors:
+  - family-names: Case
+    given-names: Denise M.
+    orcid: "https://orcid.org/0000-0001-6165-7389"
+    affiliation: "Northwest Missouri State University, School of Computer Science and Information Systems, Maryville, MO, USA"
+
+repository-code: "https://github.com/civic-interconnect/trend-tracr"
+url: "https://github.com/civic-interconnect/trend-tracr"
+license: MIT
+
+abstract: >
+  Open-source Python and Marimo application for exploring trends in
+  National Institute of Standards and Technology (NIST) Tracking Community
+  Resilience (TraCR) data. The project demonstrates a reusable analytical
+  pipeline from public source data through acquisition, processing,
+  analysis, view preparation, and interactive visualization.
+
+keywords:
+  - community-resilience
+  - NIST
+  - TraCR
+  - public-data
+  - data-analytics
+  - data-visualization
+  - civic-data
+  - open-data
+  - Python
+  - marimo
+  - Polars
+  - Altair
+  - Plotly
+  - Matplotlib
