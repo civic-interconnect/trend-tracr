@@ -252,8 +252,8 @@ uv run marimo edit src/app.py
 
 # check wasm locally
 # uv run python tools/build_fips_to_county_lookup.py
-Remove-Item -Recurse -Force _site
-uv sync
+Remove-Item -Recurse -Force _site -ErrorAction SilentlyContinue
+uv sync --frozen
 uv run marimo export html-wasm src/app.py -o _site --mode run
 uv run python -m http.server 8000 -d _site
 # open browser to: http://localhost:8000
