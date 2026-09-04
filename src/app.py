@@ -5,8 +5,9 @@ one county, using NIST Tracking Community Resilience (TraCR) data. It is also a
 teaching template: fork it, re-point s00_nist_tracr_adapter.py at a different dataset,
 and the rest of the pipeline and renderers keep working.
 
-PLAN CELLS
-1. Imports
+PLAN CELLS FIRST
+
+1. Imports (always first, so the notebook is self-contained)
 2. Opening title and introduction (Markdown)
 3. Load and process the data
 4. Controls: county, renderer, mode
@@ -14,16 +15,60 @@ PLAN CELLS
 6. Build trend result and the renderer-facing view
 7. Render: one chart, or all stacked for comparison
 8. Closing (Markdown)
+
+HOW MARIMO NOTEBOOKS WORK
+
+Each cell is a FUNCTION.
+The return value of one cell can be passed as an argument to another cell.
+We never call the functions, so they don't need names other than `_` (underscore).
+(You can give them names if you want, but the notebook engine ignores them.)
+
+The notebook is REACTIVE: when a cell's code or inputs change,
+the notebook engine reruns that cell and every cell that depends on it.
+
+The notebook is always CONSISTENT with outputs reflecting current inputs.
+
+The first cell imports all dependencies, so the notebook is SELF-CONTAINED.
+
+All later cells include their dependencies in their argument list.
+Some other cells return values that can be used in other cells.
+A cell displays the value of its last expression.
+
+A cell whose last line is an assignment or a bare return
+(like data and view cells) displays nothing;
+only markdown, control, and render cells are meant to show.
+
+RULE: Each variable must be defined in exactly one cell.
+Defining the same name in two cells is a marimo error.
+
+INPUT WIDGETS/CONTROLS: A cell that builds an input widget
+resets that widget to its default every time the cell reruns.
+marimo reruns a cell whenever any argument in its signature changes.
+So a widget-building cell must depend only on what genuinely determines its options.
 """
+
+# === ONLY THIS AT THE TOP OF THE FILE ===
 
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with_marimo_version__ = "0.24.0"
 app = marimo.App(width="medium")
+
+# === FIRST CELL IMPORTS AND RETURNS DEPS TO MAKE IT SELF-CONTAINED ===
 
 
 @app.cell
 async def _():
+    """Import every dependency and hand them to the rest of the notebook.
+
+    This cell has no arguments: it is the root of the dependency graph.
+
+    It returns each import so later cells can name them as parameters.
+    The micropip block installs plotly and pyarrow only under WASM (emscripten),
+    used when running in GitHub Pages or other browsers
+    where they are not preinstalled.
+    Running locally, they are available in the project Python environment.
+    """
     import sys
 
     import altair as alt
@@ -59,8 +104,12 @@ async def _():
     )
 
 
+# ===  TYPICALLY START WITH A MARKDOWN TITLE AND OPENING ===
+
+
 @app.cell
 def _(mo):
+    """Render the opening title and instructions. Depends only on `mo`."""
     mo.md("""
     # NIST TraCR Community Trends
 
@@ -73,8 +122,21 @@ def _(mo):
     return
 
 
+# ===  LOAD AND PROCESS THE DATA ===
+
+
 @app.cell
 def _(load_raw, mo, process):
+    """Load the TraCR data and return the processed frame.
+
+    Depends on the adapter (`load_raw`), the processor (`process`),
+    and `mo` for `notebook_location()`, which resolves the three CSVs under public/
+    both locally and in the exported WASM build for GitHub Pages.
+    Reruns only when those change,
+    so the expensive load does not repeat when the user touches a control.
+
+    Returns `processed` for every downstream cell.
+    """
     tracr_path = mo.notebook_location() / "public" / "TraCR_v1_database.csv"
 
     metadata_path = (
@@ -93,8 +155,20 @@ def _(load_raw, mo, process):
     return (processed,)
 
 
+# ===  CONTROLS: SELECT GEOGRAPHY, RENDERER, AND MODE ===
+
+
 @app.cell
 def _(list_geographies, mo, processed):
+    """Build and lay out the county, renderer, and mode controls.
+
+    Depends on `processed` (to list geographies) and `mo`.
+    It deliberately does NOT depend on `county`, `renderer`, or `mode`.
+    This cell creates them, so nothing the user toggles reruns it,
+    and these widgets never rebuild or reset once made.
+
+    Returns the county, mode, and renderer widgets.
+    """
     geographies = list_geographies(processed)
 
     county = mo.ui.dropdown(
@@ -115,12 +189,40 @@ def _(list_geographies, mo, processed):
         label="Mode",
     )
 
-    # return the selected county, mode, and renderer for further use
+    # Display the independent controls here, where they are created.
+    mo.vstack(
+        [
+            county,
+            mo.hstack([renderer, mode], gap=1, justify="start"),
+        ],
+        gap=1,
+        align="start",
+    )
+
     return county, mode, renderer
 
 
+# ===  CONTROLS: SELECT INDICATOR ===
+
+
 @app.cell
-def _(county, mo, mode, processed, renderer):
+def _(county, mo, processed):
+    """Build the indicator control, scoped to the selected county.
+
+    Depends ONLY on `county` (plus `processed` and `mo`) on purpose.
+    Different counties report different indicators,
+    so the list must rebuild when the county changes.
+    Rebuilding resets the indicator to the first available,
+    which is correct, since a new county may not report the
+    previously selected indicator.
+
+    This cell builds a widget, and a widget-building cell
+    resets to its default every time it reruns;
+    adding a control the user toggles would rerun this cell on every
+    toggle and reset the indicator.
+
+    Returns the `indicator` widget.
+    """
     available_indicators = (
         processed.filter(processed["geography_id"] == county.value)
         .select(
@@ -141,21 +243,13 @@ def _(county, mo, mode, processed, renderer):
         label="Indicator",
     )
 
-    # marimo cell displays the final layout only so it must include all UI elements
-    mo.vstack(
-        [
-            indicator,
-            mo.hstack(
-                [county, renderer, mode],
-                gap=1,
-                justify="start",
-            ),
-        ],
-        gap=1,
-        align="start",
-    )
+    # display
+    indicator
 
     return (indicator,)
+
+
+# ===  RETURN THE VIEW FOR RENDERING ===
 
 
 @app.cell
@@ -171,6 +265,9 @@ def _(county, get_trend, indicator, make_trend_view, processed):
     return (view,)
 
 
+# === DISPLAY THE RENDERED CHART(S) ===
+
+
 @app.cell
 def _(
     make_altair_trend,
@@ -181,6 +278,21 @@ def _(
     renderer,
     view,
 ):
+    """Render `view` with one renderer, or stacked in Compare mode.
+
+    Depends on `view` (the data), and on `mode`/`renderer` (the user's display
+    choices).
+    This cell is meant to rerun on those toggles:
+    it consumes the controls, it does not create them, so
+    rerunning re-renders without resetting anything.
+
+    Altair is returned via `mo.as_html`, not `mo.ui.altair_chart`,
+    because the interactive wrapper over-serializes under WASM (it will send a LOT of data)
+    and can blow past marimo's output-size limit.
+
+    Returns nothing; its last expression displays the chart.
+    """
+
     def render_one(name):
         if name == "Altair":
             chart = make_altair_trend(view)
@@ -204,11 +316,15 @@ def _(
     output
 
     # return the output for further use
-    return
+    return (output,)
+
+
+# ===  TYPICALLY END WITH A MARKDOWN SOURCE LINK AND CLOSING ===
 
 
 @app.cell
 def _(mo):
+    """Render the closing suggestions and source link. Depends only on `mo`."""
     mo.md("""
     ## Suggestions
 
